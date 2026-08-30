@@ -8,10 +8,11 @@
     blue: {
       primary: '#007bff',
       background: '#f8f9fa',
-      messageBg: '#e4e8f3',
-      userMessageBg: '#00c8ff',
-      botMessageBg: '#252e36',
-      botText: '#ffffff',
+      headerText: '#ffffff',
+      messageBg: '#e8f2ff',
+      userMessageBg: '#007bff',
+      botMessageBg: '#ffffff',    
+      botText: '#1f2937',
       border: '#3a70e6', 
       shadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       shadowLight: '0 2px 4px rgba(0, 0, 0, 0.05)',
@@ -62,7 +63,7 @@
         border-radius: 10px; flex-direction: column; overflow: hidden; z-index: 9999; font-family: sans-serif;
       }
       #chatbot-header {
-        background: ${colors.primary}; color: ${colors.botText}; padding: 12px;
+        background: ${colors.primary}; color: ${colors.headerText}; padding: 12px;
         font-weight: bold; display: flex; justify-content: space-between; align-items: center;
       }
       #chatbot-close-btn { cursor: pointer; font-size: 18px; }
@@ -71,7 +72,11 @@
         display: flex; flex-direction: column; gap: 8px;
       }
       .chat-msg-user {
-        align-self: flex-end; background: ${colors.userMessageBg}; color: #000;
+        align-self: flex-end; background: ${colors.userMessageBg}; color: ${colors.headerText};
+        padding: 6px 10px; border-radius: 8px; max-width: 80%; word-break: break-word;
+      }
+      .chat-msg-bot {
+        align-self: flex-start; background: ${colors.botMessageBg}; color: ${colors.botText};
         padding: 6px 10px; border-radius: 8px; max-width: 80%; word-break: break-word;
       }
       #chatbot-input-container {
@@ -82,8 +87,8 @@
         flex: 1; padding: 6px; border: 1px solid ${colors.border}; border-radius: 5px; outline: none;
       }
       #chatbot-send-btn {
-        padding: 6px 12px; border: 1px solid ${colors.border}; background: ${colors.primary};
-        color: ${colors.botText}; border-radius: 5px; cursor: pointer;
+        padding: 6px 12px; border: 1px solid ${colors.border}; background: ${colors.primary}; 
+        color: ${colors.headerText}; border-radius: 5px; cursor: pointer;
       }
     `;
     document.head.appendChild(styleEl);
@@ -100,7 +105,7 @@
     windowEl.id = 'chatbot-window';
     windowEl.innerHTML = `
       <div id="chatbot-header">
-        <span>Chatbot</span>
+        <span>Chatbot AI</span>
         <span id="chatbot-close-btn">&times;</span>
       </div>
       <div id="chatbot-messages"></div>
@@ -123,31 +128,66 @@
     };
   }
 
-  function addUserMessage(messagesContainer, text) {
+  function parseMarkdown(text) {
+    if (!text) return '';
+
+    return text
+      // sécurité (anti-XSS)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      // Gras : **texte**
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italique : *texte*
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Code en ligne : `code`
+      .replace(/`(.*?)`/g, '<code>$1</code>')
+      // Puces : - item
+      .replace(/^- (.*)$/gim, '• $1')
+      // Retours à la ligne : \n -> <br>
+      .replace(/\n/g, '<br>');
+  }
+  
+
+  function addMessage(messagesContainer, text, sender = 'user') {
+    if (sender === 'bot' && !text) {
+      text = "Désolé, je n'ai pas compris votre question.";
+    }
+    
     const msg = document.createElement('div');
-    msg.className = 'chat-msg-user';
-    msg.textContent = text; // Sécurité anti-XSS (!= innerHTML)
+    msg.className = `chat-msg-${sender}`;
+
+    if (sender === 'bot') {
+      msg.innerHTML = parseMarkdown(text); // parse Markdown for bot messages
+    } else {  
+      msg.textContent = text; // sécurité anti-XSS
+    }
 
     messagesContainer.appendChild(msg);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll automatique
+    messagesContainer.scrollTop = messagesContainer.scrollHeight; 
   }
 
   // Events: clicks, keydowns
   function bindEvents(elements) {
-    function handleSend() {
-      const text = elements.inputEl.value.trim();
-      if (!text) return;
+    
+    async function sendMessage() {
+      const userText = elements.inputEl.value.trim();
+      if (!userText) return;
 
-      addUserMessage(elements.messagesEl, text);
+      addMessage(elements.messagesEl, userText, 'user');
       elements.inputEl.value = '';
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      addMessage(elements.messagesEl, "J'ai bien reçu votre message. Un conseiller va vous répondre.", 'bot');
     }
 
     // "envoyer" button click
-    elements.sendBtn.addEventListener('click', handleSend);
+    elements.sendBtn.addEventListener('click', sendMessage);
 
     // Enter key press in input field
     elements.inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') handleSend();
+      if (e.key === 'Enter') sendMessage();
     });
 
     // Open/close chatbot window via open btn (chatbot)
