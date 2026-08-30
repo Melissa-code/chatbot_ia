@@ -150,8 +150,13 @@
       if (e.key === 'Enter') handleSend();
     });
 
+    // Open/close chatbot window via open btn (chatbot)
     elements.openBtn.addEventListener('click', () => {
-      elements.windowEl.style.display = 'flex';
+      if (elements.windowEl.style.display === 'flex') {
+        elements.windowEl.style.display = 'none';
+      } else {
+        elements.windowEl.style.display = 'flex';
+      } 
     });
 
     elements.closeBtn.addEventListener('click', () => {
