@@ -41,6 +41,8 @@
     },
   }; // fin COLOR_THEMES
 
+  // unique session ID for the user
+  const sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15); 
 
   // ============================== functions ==============================
 
@@ -148,7 +150,6 @@
       .replace(/\n/g, '<br>');
   }
   
-
   function addMessage(messagesContainer, text, sender = 'user') {
     if (sender === 'bot' && !text) {
       text = "Désolé, je n'ai pas compris votre question.";
@@ -168,7 +169,7 @@
   }
 
   // Events: clicks, keydowns
-  function bindEvents(elements) {
+  function bindEvents(elements, sessionId) {
     
     async function sendMessage() {
       const userText = elements.inputEl.value.trim();
@@ -177,17 +178,48 @@
       addMessage(elements.messagesEl, userText, 'user');
       elements.inputEl.value = '';
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      addMessage(elements.messagesEl, "J'ai bien reçu votre message. En cours de réflexion...", 'bot');
 
-      addMessage(elements.messagesEl, "J'ai bien reçu votre message. Un conseiller va vous répondre.", 'bot');
+      // call to backend server Node.js (securite)
+      try {
+        const result = await fetch('http://localhost:3001/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userText, sessionId }),
+        });
+
+        const data = await result.json(); 
+        if (elements.messagesEl.lastChild) {
+          elements.messagesEl.lastChild.remove();
+        }
+
+        addMessage(elements.messagesEl, data.reply || 'Réponse indisponible.', 'bot');
+        if (data.extra) {
+          addMessage(elements.messagesEl, data.extra, 'bot');
+        }
+
+      } catch (error) {
+        if (elements.messagesEl.lastChild) {
+          elements.messagesEl.lastChild.remove();
+        }
+        
+        console.error('Erreur client (fetch):', error.message);
+        addMessage(elements.messagesEl, 'Désolé, impossible de contacter le serveur.', 'bot');
+      }
     }
 
     // "envoyer" button click
-    elements.sendBtn.addEventListener('click', sendMessage);
+    elements.sendBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
 
     // Enter key press in input field
     elements.inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendMessage();
+      if (e.key === 'Enter') {
+        e.preventDefault(); 
+        sendMessage();
+      }
     });
 
     // Open/close chatbot window via open btn (chatbot)
@@ -210,7 +242,7 @@
     const colors = getThemeColors(); 
     injectStyles(colors);            
     const elements = buildDOM();     
-    bindEvents(elements);            
+    bindEvents(elements, sessionId);         
   }
 
   initChatbot();

@@ -22,6 +22,10 @@ Ce projet est un exemple de site e-commerce avec un chatbot intégré, conçu po
 - CSS
 - JavaScript
 
+## outils 
+
+- Web Browser Preview (plugin VSCODE)
+
 ## Comment lancer le projet
 
 1. Cloner le projet `git clone `
