@@ -100,3 +100,4 @@ Lancer le server `node chatbot/chatbotserver.js`
 
 Ce projet est fourni à titre d’exemple pédagogique.
 
+npx puppeteer browsers install chrome
