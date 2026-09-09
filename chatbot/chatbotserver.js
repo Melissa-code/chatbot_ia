@@ -35,21 +35,8 @@ app.post('/chat', async (req, res) => {
 
         // get session history messages
         const messages = conversations.get(sessionId);
-        // let messages; //messages[]
-
         messages.push({ role: 'user', content: userMessage });
 
-        // messages = [
-        //     {
-        //         role: 'system', 
-        //         content: 'Vous êtes un assistant IA utile pour un site e-commerce Shopping qui vent des produits mobiliers. Répondez aux questions de manière concise et claire.'
-        //     },
-        //     {
-        //         role: 'user',
-        //         content: userMessage
-        //     }
-        // ];
-        
         const response = await axios.post(
             CHATBOT_API_URL, 
             { model: MODEL, messages }, 
@@ -64,16 +51,14 @@ app.post('/chat', async (req, res) => {
         // ajout de la réponse à l'historique de la session
         let botMessage = response.data.choices[0].message.content;
         if (botMessage) {
-            messages.push({ role: 'bot', content: botMessage });
+            messages.push({ role: 'system', content: botMessage });
         }
-
         return res.json(botMessage ? { reply: botMessage } : { reply: 'Réponse indisponible.' });
 
     } catch (error) {
         console.error('Erreur lors de l\'appel à l\'API chatbot:', error);
         return res.status(500).json({ error: 'Erreur serveur' });
     }
-    
 });
 
 
