@@ -22,7 +22,7 @@ Ce projet est un exemple de site e-commerce avec un chatbot intégré, conçu po
 - CSS
 - JavaScript
 
-## outils 
+## Outils 
 
 - Web Browser Preview (plugin VSCODE)
 
@@ -96,8 +96,49 @@ une erreur 404, car cette route n'accepte que les requêtes **POST**, pas **GET*
 
 Lancer le server `node chatbot/chatbotserver.js`
 
+
+## Créer des outils 
+
+Il s'agit de donner de l'intelligence au bot. 
+
+### 1. Scraper une page web avec Puppeteer 
+
+Le 1er outil consiste à récupérer le contenu d'une page web (par exemple lire une page de documentation). 
+
+- Créer une page web via **[Notion](https://app.notion.com/)** 
+- La page doit être publique et consultable par tout personne disposant du lien
+- Installer la blibliothèque JS **Puppeteer** 
+```bash
+npm i puppeteer
+```
+
+- Configurer et résoudre des problèmes Chrome sous Windows
+- Par défaut, Puppeteer tente d'utiliser son propre binaire Chrome situé dans .cache/puppeteer. 
+- En cas d'erreur d'installation ou de cache corrompu (TimeoutError / IncompleteInstallationError):
+```bash
+# Vider le cache des navigateurs Puppeteer :
+npx puppeteer browsers clear
+
+# Forcer la réinstallation de Chrome par Puppeteer :
+npx puppeteer browsers install chrome
+```
+
+- Pour éviter les problèmes de téléchargement de binaires sur Windows, 
+spécifier le chemin du Chrome déjà installé sur la machine dans puppeteer.launch():
+```JavaScript 
+const browser = await puppeteer.launch({
+  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  headless: true
+});
+```
+
+- Dans le code de `tools/fetchDoc.js`, ne récupérer que des éléments spécifiques de la page
+(ex: .notion-page-content) pour économiser des tokens
+- Tester le script `node tools/fetchDoc.js`
+
+
+
 ## Licence
 
 Ce projet est fourni à titre d’exemple pédagogique.
 
-npx puppeteer browsers install chrome
