@@ -103,7 +103,8 @@ Il s'agit de donner de l'intelligence au bot.
 
 ### 1. Scraper une page web avec Puppeteer 
 
-Le 1er outil consiste à récupérer le contenu d'une page web (par exemple lire une page de documentation). 
+Le 1er outil consiste à récupérer le contenu d'une page web 
+(par exemple lire une page de documentation). 
 
 - Créer une page web via **[Notion](https://app.notion.com/)** 
 - La page doit être publique et consultable par tout personne disposant du lien

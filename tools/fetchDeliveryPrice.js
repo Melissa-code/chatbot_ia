@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 
 // Launch the browser and open a new blank page
 (async ()=> {
-    const url = 'https://telling-moonstone-856.notion.site/Manuel-d-Utilisation-Shopping-com-3d6300d3d0148099b73ef076bf4825cf' // Page web Notion publique
+    const url = 'https://telling-moonstone-856.notion.site/Frais-de-Livraison-Shopping-com-3e4300d3d01480629d58f1fffbeffb98' // Page web Notion publique
     // Puppeteer a été créé par Google spécifiquement pour Chromium/Chrome (script tourne en arrière-plan avec Chrome)
     const browser = await puppeteer.launch({
         executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
